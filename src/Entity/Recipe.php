@@ -1,22 +1,40 @@
 <?php
 
 namespace MyApi\Entity;
+use Symfony\Component\Serializer\Annotation\Groups;
+
+use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @Entity @Table(name="recipe")
+ * @ORM\Table(name="recipe")
+ * @ORM\Entity
  **/
 class Recipe
 {
-    /** @Id @Column(type="integer") @GeneratedValue **/
+    /**
+     * @ORM\Id
+     * @ORM\Column(type="integer")
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Groups({"overview", "detail"})
+     */
     private $id;
 
-    /** @Column(type="string") **/
+    /**
+     * @ORM\Column(type="string")
+     * @Groups({"overview", "detail"})
+     **/
     private $name;
 
-    /** @Column(type="integer") **/
+    /**
+     * @ORM\Column(type="integer")
+     * @Groups({"detail"})
+     **/
     private $energy;
 
-    /** @Column(type="integer") **/
+    /**
+     * @ORM\Column(type="integer")
+     * @Groups({"overview", "detail"})
+     **/
     private $servings;
 
 

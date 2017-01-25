@@ -23,7 +23,9 @@ $entityManager->persist($recipe);
 $entityManager->flush();
 
 //$response = new JsonResponse($serializer->normalize($recipe), 201);
-$response = new Response($serializer->serialize($recipe, 'json'), 201);
+$groups = ['groups' => ['overview']];
+$response = new Response($serializer->serialize($recipe, 'json', $groups), 201);
+
 $response->headers->set('Content-Type', 'application/json');
 $response->headers->set('Location', '/myapi/recipes/'.$recipe->getId());
 
