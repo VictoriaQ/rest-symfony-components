@@ -38,6 +38,7 @@ $routes = new RouteCollection();
 $routes->add('recipe_post', new Route('/recipes', [
     '_controller' => 'MyApi\Controller\RecipeController::post'], [], [], '', [], ['POST']));
 $routes->add('recipe_get', new Route('/recipes/{id}', [], [], [], '', [], ['GET']));
+$routes->add('login_check', new Route('/login_check', [], [], [], '', [], ['POST']));
 
 $request = Request::createFromGlobals();
 $context = new RequestContext();

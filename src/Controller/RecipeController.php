@@ -41,8 +41,7 @@ class RecipeController
         if (!$form->isValid()) {
             $response = new Response($serializer->serialize($form, 'json'), 400);
             $response->headers->set('Content-Type', 'application/json');
-            $response->send();
-            return;
+            return $response;
         }
 
         $entityManager = $this->dummyContainer['entityManager'];
