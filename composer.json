@@ -14,7 +14,8 @@
         "doctrine/orm": "^2.5",
         "symfony/serializer": "^3.2",
         "symfony/property-access": "^3.2",
-        "symfony/validator": "^3.2"
+        "symfony/validator": "^3.2",
+        "symfony/form": "^3.2"
     },
     "autoload": {
         "psr-4": { "MyApi\\": "src/" }

@@ -1,6 +1,6 @@
 <?php
 
-namespace MyApi;
+namespace MyApi\Serializer;
 
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
@@ -19,7 +19,7 @@ class SerializerFactory
         $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
 
         $encoders = [new JsonEncoder(), new XmlEncoder()];
-        $normalizers = [new ObjectNormalizer($classMetadataFactory), new ArrayDenormalizer()];
+        $normalizers = [new ObjectNormalizer($classMetadataFactory), new ArrayDenormalizer(), new FormErrorNormalizer()];
 
         $serializer = new Serializer($normalizers, $encoders);
         return $serializer;

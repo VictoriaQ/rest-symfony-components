@@ -6,29 +6,35 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validation;
+use Symfony\Component\Form\Forms;
+use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
 
 use MyApi\Entity\Recipe;
+use MyApi\Form\Type\RecipeType;
+use MyApi\Serializer\SerializerFactory;
 
 require_once __DIR__.'/../bootstrap.php';
 
-$request = Request::createFromGlobals();
-$content = $request->getContent();
 
 $serializerFactory = new SerializerFactory();
 $serializer = $serializerFactory->buildSerializer();
 
-$recipe = $serializer->deserialize($content, Recipe::class, 'json');
 
 $validatorFactory = new ValidatorFactory();
 $validator = $validatorFactory->buildValidator();
-$violations = $validator->validate($recipe);
 
-if (0 !== count($violations)) {
-    $errors = [];
-    foreach ($violations as $violation) {
-        $errors[$violation->getPropertyPath()] = $violation->getMessage();
-    }
-    $response = new JsonResponse($errors, 400);
+$formFactory = Forms::createFormFactoryBuilder()
+    ->addExtension(new ValidatorExtension($validator))
+    ->getFormFactory();
+
+$request = Request::createFromGlobals();
+$data = json_decode($request->getContent(), true);
+$recipe = new Recipe();
+$form = $formFactory->create(RecipeType::class, $recipe);
+$form->submit($data);
+
+if (!$form->isValid()) {
+    $response = new Response($serializer->serialize($form, 'json'), 400);
     $response->headers->set('Content-Type', 'application/json');
     $response->send();
     return;

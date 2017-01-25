@@ -29,6 +29,11 @@ class Recipe
     /**
      * @ORM\Column(type="integer")
      * @Groups({"detail"})
+     * @Assert\NotBlank()
+     * @Assert\GreaterThanOrEqual(
+     *      value=0,
+     *      message="This universe is not so lucky. This value must be at least zero"
+     *      )
      **/
     private $energy;
 
