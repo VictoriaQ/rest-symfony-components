@@ -2,52 +2,33 @@
 
 namespace MyApi;
 
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Validator\Validation;
-use Symfony\Component\Form\Forms;
-use Symfony\Component\Form\Extension\Validator\ValidatorExtension;
-
-use MyApi\Entity\Recipe;
-use MyApi\Form\Type\RecipeType;
-use MyApi\Serializer\SerializerFactory;
-
 require_once __DIR__.'/../bootstrap.php';
 
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
-$serializerFactory = new SerializerFactory();
-$serializer = $serializerFactory->buildSerializer();
+use Symfony\Component\Routing\RouteCollection;
+use Symfony\Component\Routing\RequestContext;
+use Symfony\Component\Routing\Matcher\UrlMatcher;
+use Symfony\Component\Routing\Route;
+use Symfony\Component\Routing;
 
-
-$validatorFactory = new ValidatorFactory();
-$validator = $validatorFactory->buildValidator();
-
-$formFactory = Forms::createFormFactoryBuilder()
-    ->addExtension(new ValidatorExtension($validator))
-    ->getFormFactory();
+$routes = new RouteCollection();
+$routes->add('recipe_post', new Route('/recipes', [
+    '_controller' => [new Controller\RecipeController(), 'post']
+], [], [], '', [], ['POST']));
+$routes->add('recipe_get', new Route('/recipes/{id}', [], [], [], '', [], ['GET']));
 
 $request = Request::createFromGlobals();
-$data = json_decode($request->getContent(), true);
-$recipe = new Recipe();
-$form = $formFactory->create(RecipeType::class, $recipe);
-$form->submit($data);
-
-if (!$form->isValid()) {
-    $response = new Response($serializer->serialize($form, 'json'), 400);
-    $response->headers->set('Content-Type', 'application/json');
-    $response->send();
-    return;
+$context = new RequestContext();
+$context->fromRequest($request);
+$matcher = new UrlMatcher($routes, $context);
+try {
+    $request->attributes->add($matcher->match($request->getPathInfo()));
+    $response = call_user_func($request->attributes->get('_controller'), $request, $entityManager);
+} catch ( Routing\Exception\ResourceNotFoundException $e ) {
+    $response = new Response('Not Found', 404);
+} catch (Exception $e) {
+    $response = new Response('An error occurred', 500);
 }
-
-$entityManager->persist($recipe);
-$entityManager->flush();
-
-//$response = new JsonResponse($serializer->normalize($recipe), 201);
-$groups = ['groups' => ['overview']];
-$response = new Response($serializer->serialize($recipe, 'json', $groups), 201);
-
-$response->headers->set('Content-Type', 'application/json');
-$response->headers->set('Location', '/myapi/recipes/'.$recipe->getId());
-
 $response->send();
