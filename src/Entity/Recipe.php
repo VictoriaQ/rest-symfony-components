@@ -2,6 +2,7 @@
 
 namespace MyApi\Entity;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -34,6 +35,7 @@ class Recipe
     /**
      * @ORM\Column(type="integer")
      * @Groups({"overview", "detail"})
+     * @Assert\NotBlank()
      **/
     private $servings;
 
