@@ -3,7 +3,7 @@
 namespace MyApi\Entity;
 
 /**
- * @Entity @Table(name="products")
+ * @Entity @Table(name="recipe")
  **/
 class Recipe
 {
