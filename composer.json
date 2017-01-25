@@ -12,5 +12,8 @@
     "require": {
         "symfony/http-foundation": "^3.2",
         "doctrine/orm": "^2.5"
+    },
+    "autoload": {
+        "psr-4": { "MyApi\\": "src/" }
     }
 }

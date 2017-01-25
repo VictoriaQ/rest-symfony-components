@@ -1,5 +1,7 @@
 <?php
 
+namespace MyApi\Entity;
+
 /**
  * @Entity @Table(name="products")
  **/
