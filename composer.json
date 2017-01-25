@@ -1,0 +1,15 @@
+{
+    "name": "victoriaq/rest-symfony-components",
+    "description": "Code to showcase fundamental use of Symfony components in APIs",
+    "type": "project",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Victoria Quirante",
+            "email": "victoria@limenius.com"
+        }
+    ],
+    "require": {
+        "symfony/http-foundation": "^3.2"
+    }
+}
