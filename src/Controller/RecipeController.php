@@ -19,11 +19,12 @@ use MyApi\ValidatorFactory;
 
 class RecipeController
 {
-    public function post(Request $request, $entityManager)
+    public $dummyContainer;
+
+    public function post(Request $request)
     {
         $serializerFactory = new SerializerFactory();
         $serializer = $serializerFactory->buildSerializer();
-
 
         $validatorFactory = new ValidatorFactory();
         $validator = $validatorFactory->buildValidator();
@@ -44,6 +45,7 @@ class RecipeController
             return;
         }
 
+        $entityManager = $this->dummyContainer['entityManager'];
         $entityManager->persist($recipe);
         $entityManager->flush();
 

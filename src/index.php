@@ -4,6 +4,9 @@ namespace MyApi;
 
 require_once __DIR__.'/../bootstrap.php';
 
+use Doctrine\ORM\Tools\Setup;
+use Doctrine\ORM\EntityManager;
+
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -13,22 +16,35 @@ use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing;
 
+// BD CONFIG
+// Do not use simple annotations, now we have an annotation loader registered, so pass false on last argument
+$config = Setup::createAnnotationMetadataConfiguration(array(__DIR__."/Entity"), true, null, null, false);
+
+// database configuration parameters
+$conn = array(
+    'driver' => 'pdo_sqlite',
+    'path' => __DIR__ . '/../var/db.sqlite',
+);
+
+// obtaining the entity manager
+$entityManager = EntityManager::create($conn, $config);
+
+// This is why we use real frameworks. In a real application you should
+// provide access to a Dependency Injection Container or something you fancy
+$dummyContainer = ['entityManager' => $entityManager];
+
+// ROUTES CONFIG
 $routes = new RouteCollection();
 $routes->add('recipe_post', new Route('/recipes', [
-    '_controller' => [new Controller\RecipeController(), 'post']
-], [], [], '', [], ['POST']));
+    '_controller' => 'MyApi\Controller\RecipeController::post'], [], [], '', [], ['POST']));
 $routes->add('recipe_get', new Route('/recipes/{id}', [], [], [], '', [], ['GET']));
 
 $request = Request::createFromGlobals();
 $context = new RequestContext();
 $context->fromRequest($request);
 $matcher = new UrlMatcher($routes, $context);
-try {
-    $request->attributes->add($matcher->match($request->getPathInfo()));
-    $response = call_user_func($request->attributes->get('_controller'), $request, $entityManager);
-} catch ( Routing\Exception\ResourceNotFoundException $e ) {
-    $response = new Response('Not Found', 404);
-} catch (Exception $e) {
-    $response = new Response('An error occurred', 500);
-}
+
+$framework = new NanoFramework($matcher, $dummyContainer);
+$response = $framework->handle($request);
+
 $response->send();
