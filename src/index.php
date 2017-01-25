@@ -21,7 +21,14 @@ $recipe->setServings($content['servings']);
 $entityManager->persist($recipe);
 $entityManager->flush();
 
-$response = new JsonResponse(null, 201);
+$responseData = [
+    'id' => $recipe->getId(),
+    'name' => $recipe->getName(),
+    'energy' => $recipe->getEnergy(),
+    'servings' => $recipe->getServings(),
+    ];
+
+$response = new JsonResponse($responseData, 201);
 $response->headers->set('Location', '/myapi/recipes/'.$recipe->getId());
 
 $response->send();
