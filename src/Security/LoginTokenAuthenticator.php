@@ -13,6 +13,11 @@ use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
+use Lcobucci\JWT\Builder;
+use Lcobucci\JWT\Signer\Keychain;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
+
+
 class LoginTokenAuthenticator extends AbstractGuardAuthenticator implements Guard\GuardAuthenticatorInterface {
 
     public function getCredentials(Request $request)
@@ -50,15 +55,13 @@ class LoginTokenAuthenticator extends AbstractGuardAuthenticator implements Guar
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
-        //$request->getSession()->set(Security::AUTHENTICATION_ERROR, $exception);
-
-        return new Response(null, 401);
+        return new JsonResponse(['error' => 'unauthorized'], 401);
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
         return new JSONResponse([
-               'token' => 'someToken',
+               'token' => $this->generateToken($token->getUsername()),
             ]);
     }
 
@@ -70,6 +73,25 @@ class LoginTokenAuthenticator extends AbstractGuardAuthenticator implements Guar
     public function start(Request $request, AuthenticationException $authException = null)
     {
         return new RedirectResponse('/');
+    }
+
+    private function generateToken($username)
+    {
+        $signer = new Sha256();
+        $keychain = new Keychain();
+
+        $token = (new Builder())->setIssuer('http://mydomain.com') // Configures the issuer (iss claim)
+            ->setAudience('http://mydomain.org') // Configures the audience (aud claim)
+            ->setId('4f1g23a12aa', true) // Configures the id (jti claim), replicating as a header item
+            ->setIssuedAt(time()) // Configures the time that the token was issue (iat claim)
+            //->setNotBefore(time() + 60) // Configures the time that the token can be used (nbf claim)
+            ->setExpiration(time() + 3600) // Configures the expiration time of the token (nbf claim)
+            ->set('username', $username) // Configures a new claim, called "username"
+            ->sign($signer,  $keychain->getPrivateKey('file://'.__DIR__.'/../../var/jwt/private.pem', 'patata'))
+            ->getToken(); // creates a signature using your private key
+
+        return (string)$token;
+
     }
 
 }

@@ -19,7 +19,7 @@
         "symfony/routing": "^3.2",
         "symfony/http-kernel": "^3.2",
         "symfony/security-guard": "^3.2",
-        "namshi/jose": "^7.2"
+        "lcobucci/jwt": "^3.2"
     },
     "autoload": {
         "psr-4": { "MyApi\\": "src/" }

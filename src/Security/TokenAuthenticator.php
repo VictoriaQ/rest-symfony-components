@@ -12,6 +12,9 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\Signer\Keychain;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
 
 class TokenAuthenticator extends AbstractGuardAuthenticator implements Guard\GuardAuthenticatorInterface {
 
@@ -24,14 +27,18 @@ class TokenAuthenticator extends AbstractGuardAuthenticator implements Guard\Gua
             return [ 'token' => $token ];
         }
 
-        return null;
+        throw new \Symfony\Component\Security\Core\Exception\BadCredentialsException();
     }
 
     public function getUser($credentials, UserProviderInterface $userProvider)
     {
         $token = $credentials['token'];
-        if ($token == 'someToken') {
-            return $userProvider->loadUserByUsername('victoria');
+        $token = (new Parser())->parse((string) $token);
+        $signer = new Sha256();
+        $keychain = new Keychain();
+        if ($token->verify($signer, $keychain->getPublicKey('file://'.__DIR__.'/../../var/jwt/public.pem'))) {
+            $username = $token->getClaim('username');
+            return $userProvider->loadUserByUsername($username);
         }
     }
 
@@ -49,7 +56,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator implements Guard\Gua
     {
         //$request->getSession()->set(Security::AUTHENTICATION_ERROR, $exception);
 
-        return new Response(null, 401);
+        return new JsonResponse(['error' => 'unauthorized'], 401);
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
@@ -64,7 +71,10 @@ class TokenAuthenticator extends AbstractGuardAuthenticator implements Guard\Gua
 
     public function start(Request $request, AuthenticationException $authException = null)
     {
-        return new RedirectResponse('/');
+        return new JsonResponse(
+            array('message' => 'Authentication required'),
+            401
+        );
     }
 
 }
