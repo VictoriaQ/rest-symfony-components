@@ -57,4 +57,19 @@ class RecipeController
 
         return $response;
     }
+
+    public function get(Request $request, $id)
+    {
+        $serializerFactory = new SerializerFactory();
+        $serializer = $serializerFactory->buildSerializer();
+
+        $entityManager = $this->dummyContainer['entityManager'];
+        $recipes = $entityManager->getRepository('MyApi\Entity\Recipe')->find($id);
+
+        $groups = ['groups' => ['detail']];
+        $response = new Response($serializer->serialize($recipes, 'json', $groups), 201);
+        $response->headers->set('Content-Type', 'application/json');
+
+        return $response;
+    }
 }
