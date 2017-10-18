@@ -4,7 +4,7 @@ namespace MyApi\Security;
 use Symfony\Component\Security\Guard;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JSONResponse;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Guard\AbstractGuardAuthenticator;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
