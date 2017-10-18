@@ -22,6 +22,7 @@ class NanoFramework implements HttpKernelInterface
     protected $matcher;
     protected $dummyContainer;
     protected $firewallMap;
+    protected $firewall;
     protected $dispatcher;
 
     public function __construct(UrlMatcher $matcher, $dummyContainer)
@@ -35,7 +36,6 @@ class NanoFramework implements HttpKernelInterface
 
     public function handle(Request $request, $type = HttpKernelInterface::MASTER_REQUEST, $catch = true)
     {
-
         $this->secure();
         $this->firewall = new Http\Firewall($this->firewallMap, $this->dispatcher);
         $this->dispatcher->addListener(HttpKernel\KernelEvents::REQUEST, array($this->firewall, 'onKernelRequest'));
@@ -58,8 +58,7 @@ class NanoFramework implements HttpKernelInterface
             return new Response('Not Found', 404);
         } catch (Exception $e) {
             return new Response('An error occurred', 500);
-        } $this->matcher->getContext()->fromRequest($request);
-
+        }
     }
 
     private function secure()
